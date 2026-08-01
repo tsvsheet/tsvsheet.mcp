@@ -25,4 +25,8 @@ const (
 	// ErrUnknownFormat is returned when the requested render format is not one
 	// of tsv, csv, html, or markdown.
 	ErrUnknownFormat errs.Const = "unknown output format"
+	// ErrWriteInstructions is returned when --instructions cannot write its
+	// output in full — a truncated configuration file must not look like a
+	// success.
+	ErrWriteInstructions errs.Const = "failed to write the instructions"
 )

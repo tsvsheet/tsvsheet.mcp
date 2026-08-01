@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"io"
 	"testing"
 
@@ -93,4 +95,83 @@ func TestMainFunc(t *testing.T) {
 
 	main()
 	assert.Equal(t, 0, code)
+}
+
+// TestInstructionsFlagPrintsAndServesNothing pins the flag's contract: it
+// writes the server's advertised instructions to stdout and exits 0 without
+// opening a transport, so it can be piped into an agent's configuration
+// without a server ever starting.
+func TestInstructionsFlagPrintsAndServesNothing(t *testing.T) {
+	origRun, origOut := runServer, stdout
+	t.Cleanup(func() { runServer, stdout = origRun, origOut })
+
+	served := false
+	runServer = func(context.Context, *mcp.Server, mcp.Transport) error {
+		served = true
+		return nil
+	}
+	var out bytes.Buffer
+	stdout = &out
+
+	assert.Equal(t, 0, run([]string{name, "--instructions"}))
+	assert.Equal(t, string(app.Instructions()), out.String())
+	assert.False(t, served, "the flag starts no server")
+}
+
+func TestWithoutTheFlagTheServerRuns(t *testing.T) {
+	origRun := runServer
+	t.Cleanup(func() { runServer = origRun })
+	served := false
+	runServer = func(context.Context, *mcp.Server, mcp.Transport) error {
+		served = true
+		return nil
+	}
+	assert.Equal(t, 0, run([]string{name}))
+	assert.True(t, served)
+}
+
+// failingWriter fails every write, standing in for a full disk or a closed
+// descriptor.
+type failingWriter struct{}
+
+func (failingWriter) Write([]byte) (int, error) { return 0, errors.New("no space left on device") }
+
+// TestInstructionsWriteFailureIsReported pins the fix for a defect an
+// adversarial pass found: the flag exists to be redirected into a
+// configuration file, so a write that does not land must not exit 0. A
+// truncated config reported as success is worse than a failure, because the
+// caller cannot tell it happened.
+func TestInstructionsWriteFailureIsReported(t *testing.T) {
+	origOut := stdout
+	t.Cleanup(func() { stdout = origOut })
+	var diagnostics bytes.Buffer
+	stdout = failingWriter{}
+	prev := stderr
+	stderr = &diagnostics
+	t.Cleanup(func() { stderr = prev })
+
+	assert.Equal(t, 1, run([]string{name, "--instructions"}))
+	assert.Contains(t, diagnostics.String(), name, "the failure names the command")
+	assert.Contains(t, diagnostics.String(), constants.ErrWriteInstructions.Error(),
+		"and the specific sentinel, so a caller can tell a failed write from a transport fault")
+}
+
+// TestInstructionsWriteFailureCarriesItsSentinel pins the identity of the
+// error, not merely that one occurred: a mutation swapping it for an unrelated
+// sentinel previously survived.
+func TestInstructionsWriteFailureCarriesItsSentinel(t *testing.T) {
+	origOut := stdout
+	t.Cleanup(func() { stdout = origOut })
+	stdout = failingWriter{}
+	err := serve(context.Background(), instructionsCommand())
+	require.Error(t, err)
+	assert.ErrorIs(t, err, constants.ErrWriteInstructions)
+}
+
+// instructionsCommand is a parsed command with --instructions set.
+func instructionsCommand() *cli.Command {
+	cmd := createApp()
+	cmd.Writer = io.Discard
+	_ = cmd.Set(flagInstructions, "true")
+	return cmd
 }

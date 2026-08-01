@@ -28,7 +28,6 @@ func TestCheckToolDiagnostics(t *testing.T) {
 	require.Len(t, out.Diagnostics, 1)
 	assert.Equal(t, "A1", out.Diagnostics[0].Cell)
 	assert.Contains(t, out.Diagnostics[0].Message, "NOTAFUNC")
-	assert.False(t, out.Diagnostics[0].IsFatal)
 }
 
 func TestCheckToolParseError(t *testing.T) {

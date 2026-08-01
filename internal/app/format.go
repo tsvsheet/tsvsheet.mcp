@@ -47,7 +47,7 @@ func render(grid tsvsheet.Grid, f Format) (string, error) {
 }
 
 // renderTSV joins each row with tabs and terminates every row with a newline,
-// byte-identical to the engine's canonical TSV serialization.
+// the same bytes the engine's canonical TSV serialization produces. See TestRenderFormats.
 func renderTSV(grid tsvsheet.Grid) string {
 	lines := make([]string, len(grid))
 	for i, row := range grid {
@@ -104,9 +104,9 @@ func renderMarkdown(grid tsvsheet.Grid) string {
 }
 
 // markdownRow renders one grid row as a pipe-delimited table row. Each cell is
-// escaped so no value breaks the table: a | is backslash-escaped so it never
+// escaped so no value breaks the table: a | is backslash-escaped, so it does not
 // starts a new column, and a newline — which a cell can hold via CHAR(10) —
-// becomes a <br> so it never splits the row into two table lines (GFM renders
+// becomes a <br>, keeping the row on one table line (GFM renders
 // <br> as an in-cell line break).
 func markdownRow(row []string) string {
 	cells := make([]string, len(row))

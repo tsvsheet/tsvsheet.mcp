@@ -19,18 +19,23 @@ type CheckInput struct {
 	Source string `json:"source" jsonschema:"the .tsvt source to diagnose: a TAB-separated grid of literals and =formulas"`
 }
 
-// DiagnosticInfo is one advisory finding about a formula cell.
+// DiagnosticInfo is one finding. A finding about a cell carries its address;
+// a finding about a view directive carries the physical line instead, since a
+// directive occupies no row and so has no address. Both are advisory: a sheet
+// with diagnostics still computes, and a sheet the parser rejects outright
+// comes back as a tool error rather than a finding — which is why there is no
+// "fatal" flag here to mislead an agent into branching on one.
 type DiagnosticInfo struct {
-	Cell    string `json:"cell"    jsonschema:"the A1 address of the cell the finding is about"`
-	Message string `json:"message" jsonschema:"a human-readable description of the finding"`
-	IsFatal bool   `json:"fatal"   jsonschema:"whether the finding is fatal (true) or advisory (false)"`
+	Cell    string `json:"cell,omitempty" jsonschema:"the A1 address of the cell the finding is about, when it is about a cell"`
+	Message string `json:"message"        jsonschema:"a human-readable description of the finding"`
+	Line    int    `json:"line,omitempty" jsonschema:"the 1-based physical line the finding is about, when it is not about a cell"`
 }
 
 // CheckOutput is the structured tsvsheet_check result: a summary line and the
 // list of diagnostics (empty when the sheet is clean).
 type CheckOutput struct {
 	Summary     string           `json:"summary"     jsonschema:"one-line summary: 'no diagnostics' or the finding count"`
-	Diagnostics []DiagnosticInfo `json:"diagnostics" jsonschema:"the diagnostics found, one per problematic cell"`
+	Diagnostics []DiagnosticInfo `json:"diagnostics" jsonschema:"the diagnostics found, one per unknown function call"`
 }
 
 // checkToolDef describes tsvsheet_check to the agent.
@@ -55,7 +60,7 @@ func checkTool(_ context.Context, _ *mcp.CallToolRequest, in CheckInput) (*mcp.C
 func diagnosticInfos(diags []tsvsheet.Diagnostic) []DiagnosticInfo {
 	out := make([]DiagnosticInfo, len(diags))
 	for i, d := range diags {
-		out[i] = DiagnosticInfo{Cell: d.Cell, Message: d.Message, IsFatal: d.IsFatal}
+		out[i] = DiagnosticInfo{Cell: d.Cell, Message: d.Message}
 	}
 	return out
 }

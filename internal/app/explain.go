@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"strings"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	tsvsheet "github.com/tsvsheet/go-tsvsheet"
@@ -51,7 +52,7 @@ func explainTool(
 	if err != nil {
 		return nil, ExplainOutput{}, constants.ErrParse.With(err)
 	}
-	address, err := tsvsheet.ParseAddress(tsvsheet.AddressText(in.Cell))
+	address, err := tsvsheet.ParseAddress(unpinned(in.Cell))
 	if err != nil {
 		return nil, ExplainOutput{}, constants.ErrInvalidCell.With(err, "cell", in.Cell)
 	}
@@ -83,4 +84,17 @@ func traceInputInfos(inputs []tsvsheet.TraceInput) []TraceInputInfo {
 		out[i] = TraceInputInfo{Ref: in.Ref, Value: in.Value}
 	}
 	return out
+}
+
+// CellRef is a cell address as a caller writes it, absolute markers and all.
+type CellRef = string
+
+// unpinned drops the "$" markers an A1 reference may carry. The language
+// accepts $A$1, $A1 and A$1 and gives them no positional meaning
+// (SPECIFICATION section 4), and this tool's own output echoes a formula's
+// references verbatim — so a caller walking the dependencies this tool reports
+// would otherwise feed back an address it just emitted and be refused. See the
+// tsvsheet_explain claim in instructions_test.go.
+func unpinned(cell CellRef) tsvsheet.AddressText {
+	return tsvsheet.AddressText(strings.ReplaceAll(cell, "$", ""))
 }

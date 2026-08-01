@@ -31,7 +31,10 @@ type Version string
 // tool infers its input schema from its typed argument struct and its 'jsonschema'
 // field tags, so an agent sees documented parameters.
 func NewServer(version Version) *mcp.Server {
-	server := mcp.NewServer(&mcp.Implementation{Name: serverName, Version: string(version)}, nil)
+	server := mcp.NewServer(
+		&mcp.Implementation{Name: serverName, Version: string(version)},
+		&mcp.ServerOptions{Instructions: string(Instructions())},
+	)
 	mcp.AddTool(server, renderToolDef, renderTool)
 	mcp.AddTool(server, checkToolDef, checkTool)
 	mcp.AddTool(server, explainToolDef, explainTool)
