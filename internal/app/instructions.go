@@ -71,5 +71,8 @@ call tells you what to fix rather than only that something failed.
 A cell whose formula cannot produce a value computes to an error value in
 place, and the surrounding grid still computes — so a render or explain result
 containing one is a finding to report, not a failed call. The error values are
-#REF!, #VALUE!, #N/A, #NAME?, #DIV/0!, #NUM!, #CIRC!, #SPILL!, and #IMPORT!.
+#REF!, #VALUE!, #N/A, #NAME?, #DIV/0!, #NUM!, #CIRC!, #SPILL!, #IMPORT!, and
+#LIMIT!. A #LIMIT! is a budget refusal, not a data error: the reference or
+result was larger than the processor's configured cell budget, and raising the
+budget (or narrowing the reference) is the remedy.
 `
