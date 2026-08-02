@@ -113,8 +113,9 @@ func createApp() *cli.Command {
 		EnableShellCompletion: true,
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
-				Name:  flagInstructions,
-				Usage: "print the usage instructions this server gives an agent, then exit",
+				Name:    flagInstructions,
+				Sources: cli.EnvVars("TSVSHEET_MCP_INSTRUCTIONS"),
+				Usage:   "print the usage instructions this server gives an agent, then exit",
 			},
 		},
 		Action: serve,
