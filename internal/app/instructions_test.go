@@ -181,10 +181,10 @@ var claims = []struct {
 	},
 	{
 		sentence: "The error values are #REF!, #VALUE!, #N/A, #NAME?, #DIV/0!, #NUM!, " +
-			"#CIRC!, #SPILL!, and #IMPORT!.",
+			"#CIRC!, #SPILL!, #IMPORT!, and #LIMIT!.",
 		holds: func(t *testing.T) {
 			// Each named value is one the language defines; none is invented.
-			for _, value := range []string{"#REF!", "#VALUE!", "#N/A", "#NAME?", "#DIV/0!", "#NUM!", "#CIRC!", "#SPILL!", "#IMPORT!"} {
+			for _, value := range []string{"#REF!", "#VALUE!", "#N/A", "#NAME?", "#DIV/0!", "#NUM!", "#CIRC!", "#SPILL!", "#IMPORT!", "#LIMIT!"} {
 				_, out, err := renderTool(context.Background(), nil, RenderInput{Source: value + "\n"})
 				require.NoError(t, err, value)
 				assert.Contains(t, out.Rendered, value, "%s must round-trip as an error value literal", value)
