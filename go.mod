@@ -3,8 +3,8 @@ module github.com/tsvsheet/tsvsheet.mcp
 go 1.26.5
 
 require (
-	github.com/gomatic/go-error v0.3.10
-	github.com/modelcontextprotocol/go-sdk v1.6.1
+	github.com/gomatic/go-error v0.3.13
+	github.com/modelcontextprotocol/go-sdk v1.7.0
 	github.com/stretchr/testify v1.11.1
 	github.com/tsvsheet/go-tsvsheet v0.27.2
 	github.com/urfave/cli/v3 v3.10.1
@@ -21,6 +21,8 @@ require (
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 // indirect
 	golang.org/x/oauth2 v0.35.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/time v0.15.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
