@@ -3,7 +3,7 @@ module github.com/tsvsheet/tsvsheet.mcp
 go 1.26.5
 
 require (
-	github.com/gomatic/go-error v0.3.13
+	github.com/gomatic/go-error v0.3.14
 	github.com/modelcontextprotocol/go-sdk v1.7.0
 	github.com/stretchr/testify v1.11.1
 	github.com/tsvsheet/go-tsvsheet v0.27.9
