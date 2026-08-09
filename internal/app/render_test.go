@@ -59,3 +59,15 @@ func TestRenderToolUnknownFormat(t *testing.T) {
 	assert.Nil(t, result)
 	require.ErrorIs(t, err, constants.ErrUnknownFormat)
 }
+
+// TestRenderToolNamedValues pins the 023 seam at the MCP boundary: an agent
+// rendering a sheet that declares names with the |@ meta clause gets the
+// computed values — the tool cannot silently lag the engine's grammar.
+func TestRenderToolNamedValues(t *testing.T) {
+	t.Parallel()
+
+	_, out, err := renderTool(context.Background(), nil,
+		RenderInput{Source: "=0.08 |@ named(Rate)\t=@Rate * 100"})
+	require.NoError(t, err)
+	assert.Equal(t, "0.08\t8\n", out.Rendered)
+}
