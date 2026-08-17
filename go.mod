@@ -6,7 +6,7 @@ require (
 	github.com/gomatic/go-error v0.3.15
 	github.com/modelcontextprotocol/go-sdk v1.7.0
 	github.com/stretchr/testify v1.11.1
-	github.com/tsvsheet/go-tsvsheet v0.27.12
+	github.com/tsvsheet/go-tsvsheet v0.28.1
 	github.com/urfave/cli/v3 v3.10.1
 )
 
